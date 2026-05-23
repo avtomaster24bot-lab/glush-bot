@@ -140,8 +140,8 @@ def detect_provider(api_key: str) -> Optional[str]:
     key = api_key.strip()
     if key.startswith("sk-ant"):
         return "claude"
-    elif key.startswith("sk-") and not key.startswith("sk-ant"):
+    elif key.startswith("sk-"):
         return "openai"
-    elif len(key) == 39 and key.startswith("AI"):
+    elif key.startswith("AIza"):
         return "gemini"
     return None
