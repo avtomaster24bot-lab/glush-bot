@@ -108,21 +108,28 @@ async def call_openai(api_key: str, history: list) -> str:
     return response.choices[0].message.content
 
 async def call_gemini(api_key: str, history: list) -> str:
-    import google.generativeai as genai
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
-        system_instruction=SYSTEM_PROMPT
-    )
-    # Конвертируем историю в формат Gemini
-    gemini_history = []
-    for msg in history[:-1]:
-        role = "user" if msg["role"] == "user" else "model"
-        gemini_history.append({"role": role, "parts": [msg["content"]]})
+    import aiohttp
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
     
-    chat = model.start_chat(history=gemini_history)
-    response = await chat.send_message_async(history[-1]["content"])
-    return response.text
+    # Конвертируем историю в формат Gemini
+    contents = []
+    for msg in history:
+        role = "user" if msg["role"] == "user" else "model"
+        contents.append({"role": role, "parts": [{"text": msg["content"]}]})
+    
+    payload = {
+        "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
+        "contents": contents,
+        "generationConfig": {"maxOutputTokens": 1000}
+    }
+    
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json=payload) as resp:
+            if resp.status != 200:
+                text = await resp.text()
+                raise ValueError(f"Gemini error {resp.status}: {text}")
+            data = await resp.json()
+            return data["candidates"][0]["content"]["parts"][0]["text"]
 
 async def call_ai(provider: str, api_key: str, history: list) -> str:
     """Универсальный вызов — выбирает провайдера автоматически"""
