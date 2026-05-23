@@ -139,8 +139,28 @@ async def call_ai(provider: str, api_key: str, history: list) -> str:
         return await call_openai(api_key, history)
     elif provider == "gemini":
         return await call_gemini(api_key, history)
+    elif provider == "groq":
+        return await call_groq(api_key, history)
     else:
         raise ValueError(f"Неизвестный провайдер: {provider}")
+
+async def call_groq(api_key: str, history: list) -> str:
+    import aiohttp
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}] + history
+    payload = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": messages,
+        "max_tokens": 1000
+    }
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json=payload, headers=headers) as resp:
+            if resp.status != 200:
+                text = await resp.text()
+                raise ValueError(f"Groq error {resp.status}: {text}")
+            data = await resp.json()
+            return data["choices"][0]["message"]["content"]
 
 def detect_provider(api_key: str) -> Optional[str]:
     """Определяет провайдера по формату ключа"""
@@ -151,4 +171,6 @@ def detect_provider(api_key: str) -> Optional[str]:
         return "openai"
     elif key.startswith("AIza"):
         return "gemini"
+    elif key.startswith("gsk_"):
+        return "groq"
     return None

@@ -60,12 +60,13 @@ def kb_provider() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="🟣 Claude (Anthropic)", callback_data="prov_claude")],
         [InlineKeyboardButton(text="🟢 GPT-4o-mini (OpenAI)", callback_data="prov_openai")],
         [InlineKeyboardButton(text="🔵 Gemini Flash (Google)", callback_data="prov_gemini")],
+        [InlineKeyboardButton(text="🟡 Groq Llama 3.3 (бесплатно)", callback_data="prov_groq")],
     ])
 
 # ── ХЕЛПЕРЫ ───────────────────────────────────────
 
-PROVIDER_NAMES = {"claude": "Claude (Anthropic)", "openai": "GPT-4o-mini (OpenAI)", "gemini": "Gemini Flash (Google)"}
-PROVIDER_KEYS  = {"claude": "console.anthropic.com/settings/keys", "openai": "platform.openai.com/api-keys", "gemini": "aistudio.google.com/app/apikey"}
+PROVIDER_NAMES = {"claude": "Claude (Anthropic)", "openai": "GPT-4o-mini (OpenAI)", "gemini": "Gemini Flash (Google)", "groq": "Groq (Llama 3.3 бесплатно)"}
+PROVIDER_KEYS  = {"claude": "console.anthropic.com/settings/keys", "openai": "platform.openai.com/api-keys", "gemini": "aistudio.google.com/app/apikey", "groq": "console.groq.com"}
 
 async def send_main_menu(message: Message, text: str = None):
     user = await storage.get_user(message.from_user.id)
