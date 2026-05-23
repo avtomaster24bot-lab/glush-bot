@@ -109,7 +109,7 @@ async def call_openai(api_key: str, history: list) -> str:
 
 async def call_gemini(api_key: str, history: list) -> str:
     import aiohttp
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
     
     # Конвертируем историю в формат Gemini
     contents = []
